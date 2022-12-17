@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Overcalc</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-6 col-sm-12 col-md-10">
+            <h1 class="pt-3">Сезон 2 by <a class="link-dark" href="https://www.youtube.com/c/Хоннер">Хоннер</a>  <a class="btn btn-sm btn-dark" href="https://www.donationalerts.com/r/honner">Поддержать</a></h1>
+           
+            <form>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <label>До конца игрового дня:</label>
+                        <div class="form-control-plaintext form-control-lg" id="timeRemaining"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-6">
+                        <label>Дней осталось:</label>
+                        <div class="form-control-plaintext form-control-lg" id="daysRemaining"></div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                        <label>Цель сегодня:</label>
+                        <div class="form-control-plaintext form-control-lg" id="todayStats"></div>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <label>Текущий уровень:</label>
+                        <div class="mb-3 d-flex flex-row">
+                            <div class="input-group me-2">
+                                <button class="btn btn-outline-secondary" type="button" id="unlockEdit"><i id="lockIcon"
+                                                                                                           class="bi bi-lock-fill"></i>
+                                </button>
+                                <input class="form-control form-control-lg" id="currentLevel" type="number"
+                                       placeholder="Текущий уровень" value="1" disabled>
+                            </div>
+                            <button id="decrementCurrentLevel" class="btn btn-outline-primary" type="button"><i
+                                    class="bi bi-dash-lg"></i></button>
+                            <button id="incrementCurrentLevel" class="btn btn-outline-primary ms-2" type="button"><i
+                                    class="bi bi-plus-lg"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </form>
+            <div class="d-flex flex-row">
+                    <img id="chatImage" class="me-2 rounded-circle" style="height: 64px;" src="" alt="Мерси">
+                    <p class="form-control mb-0"><span id="chatText" class="lead"></span></p>
+            </div>
+            <div class="row pt-3">
+                <div>
+                    <h2>Дни фарма</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">День</th>
+                            <th scope="col">Дата окончания</th>
+                            <th scope="col">Опт. уровень</th>
+                        </tr>
+                        </thead>
+                        <tbody id="daysList">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+<script>
+    class Event {
+        constructor(name, dateStart, dateEnd, emoji) {
+            this.name = name;
+            this.dateStart = new Date(dateStart);
+            this.dateEnd = new Date(dateEnd);
+            this.emoji = emoji;
+        }
+    }
+
+    class ChatMessage {
+        constructor(text, rank) {
+            this.text = text;
+            this.rank = rank;
+            this.file = rank + '.webp';
+        }
+    }
+
+    // Основыне константы
+    const battlePassStartLvl = 1;
+    const battlePassEndLvl = 200;
+    const battlePassStartDate = new Date('2022-12-06T19:00:00.000+00:00');
+    const battlePassEndDate = new Date('2023-02-07T19:00:00.000+00:00');
+    const battlePassDuration = getDateDiff(battlePassEndDate, battlePassStartDate);
+    const lvlsForDay = (battlePassEndLvl - battlePassStartLvl) / battlePassDuration;
+
+    // Селекторы
+    const displayDaysRemaining = $('#daysRemaining');
+    const displayTable = $('#daysList');
+    const displayTodayStats = $('#todayStats');
+    const inputCurrentLvl = $('#currentLevel');
+    const decrementButton = $('#decrementCurrentLevel');
+    const incrementButton = $('#incrementCurrentLevel');
+
+    // События
+    const winterWonderland = new Event("Зимняя Сказка", "12/14/2022", "01/05/2023", "❄");
+    const BattleForOlympus = new Event("Битва за Олимп", "01/06/2023", "01/20/2023", "🏆");
+    const LunarNewYear = new Event("Лунный Новый Год", "01/18/2023", "02/07/2023", "🐰");
+    const events = [winterWonderland, BattleForOlympus, LunarNewYear];
+
+    // Чат
+    const chatMessages = [
+        new ChatMessage('Увы, таких сооружений больше не строят.', 'p15'),
+        new ChatMessage('Цените эти последние мгновения тишины!', 'p13'),
+        new ChatMessage('Изумительно!', 'p10'),
+        new ChatMessage('Впечатляет.', 'p9'),
+        new ChatMessage('Тебя выписали.', 'p8'),
+        new ChatMessage('Блаженные минуты отдыха. Увы, ничто не длится вечно.', 'p7'),
+        new ChatMessage('Счет за прием я вышлю позже.', 'p6'),
+        new ChatMessage('Так-то лучше.', 'p5'),
+        new ChatMessage('Другое дело!', 'p4'),
+        new ChatMessage('Так гораздо лучше.', 'p3'),
+        new ChatMessage('Герои не умирают!', 'p2'),
+        new ChatMessage('Уже ничего не болит?', 'p1'),
+        new ChatMessage('Я присмотрю за тобой!', 'p0'),
+        new ChatMessage('Доктора вызывали?', 'm1'),
+        new ChatMessage('Врача! Ой, я и есть врач.', 'm2'),
+        new ChatMessage('Где болит?', 'm3'),
+        new ChatMessage('Давай, возвращайся в бой.', 'm4'),
+        new ChatMessage('Скверно выглядишь.', 'm5'),
+        new ChatMessage('Нужно независимое мнение?', 'm6'),
+        new ChatMessage('Где теперь болит?', 'm7'),
+        new ChatMessage('Как вы оцените боль по десятибалльной шкале?', 'm8'),
+        new ChatMessage('Прими две таблетки и позвони мне утром.', 'm10'),
+        new ChatMessage('Позволь, я тебя осмотрю.', 'm11'),
+        new ChatMessage('Прогноз не очень хороший.', 'm12'),
+        new ChatMessage('Боюсь, ваше заболевание неизлечимо.', 'm13'),
+        new ChatMessage('Давай я тебя подлечу.', 'm14'),
+        new ChatMessage('Разве насилие - это выход?', 'm15'),
+    ];
+
+    function getDateDiff(day1, day2) {
+        let diffTime = Math.abs(day1 - day2);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function convertTZ(date, tzString) {
+        return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: tzString}));
+    }
+
+    function getCurrentLvl() {
+        return parseInt(inputCurrentLvl.val());
+    }
+
+    function calculateForNow() {
+        let currentDay = new Date();
+        currentDay = convertTZ(currentDay, "UTC");
+
+        let daysPassedFromBattlePassStart = getDateDiff(currentDay, convertTZ(battlePassStartDate, "UTC"));
+        let daysRemaining = battlePassDuration - daysPassedFromBattlePassStart;
+        let expectedLvl = battlePassStartLvl + Math.ceil(lvlsForDay * (battlePassDuration - daysRemaining));
+
+        let currentLevel = getCurrentLvl();
+        localStorage.setItem('currentLevel', currentLevel);
+
+        let lvlDiff = getLvlDiff(currentLevel, expectedLvl)
+        changeThumbnail(currentLevel, expectedLvl)
+        displayTodayStats.html(`<span class="fw-bold">${expectedLvl}</span> ${lvlDiff}`);
+        displayDaysRemaining.html(`<span class="fw-bold">${daysRemaining + 1}</span> / <span class="text-muted">${battlePassDuration}</span>`);
+        drawTable(currentLevel, lvlDiff, daysPassedFromBattlePassStart);
+    }
+
+    function changeThumbnail(currentLevel, expectedLvl) {
+        let levelDifference = currentLevel - expectedLvl;
+        if (levelDifference >= 0) {
+            levelDifference = 'p' + levelDifference;
+        } else {
+            levelDifference = 'm' + Math.abs(levelDifference)
+        }
+        
+        try {
+        chatMessages.forEach(function (chatMessage) {
+            if (chatMessage.rank === levelDifference) {
+                $('#chatText').html(chatMessage.text);
+                $('#chatImage').attr("src", 'img/' + chatMessage.file);
+                throw BreakException;;
+            } else if(Math.abs(currentLevel - expectedLvl) > 15) {
+                if (levelDifference.startsWith('m')) {
+                    $('#chatText').html(chatMessages[chatMessages.length - 1].text);
+                    $('#chatImage').attr("src", 'img/' + chatMessages[chatMessages.length - 1].file);
+                    throw BreakException;
+                } else {
+                    $('#chatText').html(chatMessages[0].text);
+                    $('#chatImage').attr("src", 'img/' + chatMessages[0].file);
+                    throw BreakException;
+                }
+            }
+            
+        });
+        } catch (e) {
+            // if (e !== BreakException) throw e;
+            }
+    }
+
+    function getLvlDiff(currentLevel, expectedLevel) {
+        let levelDiff = currentLevel - expectedLevel;
+        if (levelDiff >= 0) {
+            return ` <span class="text-success">+${levelDiff} от цели</span>`;
+        } else {
+            return ` <span class="text-danger">${levelDiff} от цели</span>`;
+        }
+    }
+
+    function incrementDate(date) {
+        date.setDate(date.getDate() + 1);
+        return date;
+    }
+
+    function drawTable(currentLevel, lvlDiff, daysPassedFromBattlePassStart) {
+        let date = new Date(battlePassStartDate);
+        displayTable.empty();
+
+        for (let index = 1; index <= battlePassDuration; index++) {
+            date = incrementDate(date);
+            if (index < daysPassedFromBattlePassStart) {
+                continue
+            }
+            let expectedLvl = battlePassStartLvl + Math.ceil(lvlsForDay * index);
+
+            let displayLvlDiff = '';
+            if (index === daysPassedFromBattlePassStart || index === 1 && daysPassedFromBattlePassStart === 0) {
+                displayLvlDiff = lvlDiff;
+            }
+
+            let eventString = ' ';
+            events.forEach(function (event) {
+                if (date >= event.dateStart && date <= event.dateEnd) {
+                    eventString = eventString + ` <span title="${event.name}">${event.emoji}</span>`;
+                }
+            })
+
+            let row = `<tr><th scope="row">${index}</th><td>${date.toLocaleDateString("ru-RU", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit"
+            }) + eventString}</td><td>${expectedLvl + displayLvlDiff}</td></tr>`
+
+            displayTable.append(row);
+        }
+    }
+
+    function showTime(previousTime = null) {
+        let date = new Date();
+        date = convertTZ(date, "UTC");
+
+        if(previousTime) {
+            if(date.getTime() - previousTime.getTime() > 1000) {
+                calculateForNow();
+            }
+        }
+
+        let h = 18 - date.getHours(); // 0 - 23
+        let m = 59 - date.getMinutes(); // 0 - 59
+        let s = 59 - date.getSeconds(); // 0 - 59
+
+        if (h < 0) {
+            h = 24 + h;
+        }
+
+        if (h === 23 && m === 59 && s === 58) {
+            calculateForNow();
+        }
+
+        h = (h < 10) ? "0" + h : h;
+        m = (m < 10) ? "0" + m : m;
+        s = (s < 10) ? "0" + s : s;
+
+        let time = h + ":" + m + ":" + s;
+        $('#timeRemaining').html(time);
+
+        setTimeout(showTime, 1000, date);
+    }
+
+    function init() {
+        savedCurrentLevel = localStorage.getItem('currentLevel');
+        if (savedCurrentLevel > 0) {
+            inputCurrentLvl.val(savedCurrentLevel);
+        }
+
+        calculateForNow();
+        showTime();
+
+    }
+
+    function changeCurrentLvl(number) {
+        let currentLvl = getCurrentLvl();
+        currentLvl = currentLvl + number;
+        inputCurrentLvl.val(currentLvl);
+        calculateForNow();
+    }
+
+    init();
+
+    inputCurrentLvl.on('change', function () {
+        calculateForNow();
+    })
+
+    decrementButton.on('click', function () {
+        changeCurrentLvl(-1);
+    })
+
+    incrementButton.on('click', function () {
+        changeCurrentLvl(1);
+    })
+
+    $('#unlockEdit').on('click', function () {
+        if (inputCurrentLvl.prop('disabled')) {
+            $('#lockIcon').attr('class', 'bi bi-unlock-fill');
+            $('#currentLevel').prop('disabled', false);
+        } else {
+            $('#lockIcon').attr('class', 'bi bi-lock-fill');
+            $('#currentLevel').prop('disabled', true);
+        }
+    })
+</script>
+</body>
+</html>
