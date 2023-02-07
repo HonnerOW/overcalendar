@@ -173,7 +173,7 @@
         let expectedLvl = battlePassStartLvl + Math.ceil(lvlsForDay * (battlePassDuration - daysRemaining));
 
         let currentLevel = getCurrentLvl();
-        localStorage.setItem('currentLevel', currentLevel);
+        localStorage.setItem('currentLevel3', currentLevel);
 
         let lvlDiff = getLvlDiff(currentLevel, expectedLvl)
         changeThumbnail(currentLevel, expectedLvl)
@@ -296,7 +296,7 @@
     }
 
     function init() {
-        savedCurrentLevel = localStorage.getItem('currentLevel');
+        savedCurrentLevel = localStorage.getItem('currentLevel3');
         if (savedCurrentLevel > 0) {
             inputCurrentLvl.val(savedCurrentLevel);
         }
