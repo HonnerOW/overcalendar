@@ -12,7 +12,7 @@
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-lg-6 col-sm-12 col-md-10">
-            <h1 class="pt-3">Сезон 2 by <a class="link-dark" href="https://www.youtube.com/c/Хоннер">Хоннер</a>  <a class="btn btn-sm btn-dark" href="https://www.donationalerts.com/r/honner">Поддержать</a></h1>
+            <h1 class="pt-3">Сезон 3 by <a class="link-dark" href="https://www.youtube.com/c/Хоннер">Хоннер</a>  <a class="btn btn-sm btn-dark" href="https://www.donationalerts.com/r/honner">Поддержать</a></h1>
            
             <form>
                 <div class="row">
@@ -102,8 +102,8 @@
     // Основыне константы
     const battlePassStartLvl = 1;
     const battlePassEndLvl = 200;
-    const battlePassStartDate = new Date('2022-12-06T19:00:00.000+00:00');
-    const battlePassEndDate = new Date('2023-02-07T19:00:00.000+00:00');
+    const battlePassStartDate = new Date('2023-02-07T19:00:00.000+00:00');
+    const battlePassEndDate = new Date('2023-04-11T19:00:00.000+00:00');
     const battlePassDuration = getDateDiff(battlePassEndDate, battlePassStartDate);
     const lvlsForDay = (battlePassEndLvl - battlePassStartLvl) / battlePassDuration;
 
@@ -116,10 +116,9 @@
     const incrementButton = $('#incrementCurrentLevel');
 
     // События
-    const winterWonderland = new Event("Зимняя Сказка", "12/14/2022", "01/05/2023", "❄");
-    const BattleForOlympus = new Event("Битва за Олимп", "01/06/2023", "01/20/2023", "🏆");
-    const LunarNewYear = new Event("Лунный Новый Год", "01/18/2023", "02/07/2023", "🐰");
-    const events = [winterWonderland, BattleForOlympus, LunarNewYear];
+    const loverWatch = new Event("LoverWatch", "02/14/2023", "02/28/2023", "❤️");
+    const pachiMarchi = new Event("PachiMarchi", "03/21/2023", "04/04/2023", "🧅");
+    const events = [loverWatch, pachiMarchi];
 
     // Чат
     const chatMessages = [
