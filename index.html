@@ -20,6 +20,15 @@
                         <label>До конца игрового дня:</label>
                         <div class="form-control-plaintext form-control-lg" id="timeRemaining"></div>
                     </div>
+                    <div class="col-md-6 col-sm-12">
+                        <label>Целевой уровень:</label>
+                        <div class="btn-group d-flex flex-row" role="group" aria-label="Basic radio toggle button group">
+                            <input type="radio" class="btn-check" name="endLevelRadio" id="endLevel80" autocomplete="off" value="80">
+                            <label class="btn btn-outline-primary" for="endLevel80">80</label>
+                            <input type="radio" class="btn-check" name="endLevelRadio" id="endLevel200" value="200" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="endLevel200">200</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3 col-sm-6">
@@ -101,11 +110,9 @@
 
     // Основыне константы
     const battlePassStartLvl = 1;
-    const battlePassEndLvl = 200;
     const battlePassStartDate = new Date('2023-02-07T19:00:00.000+00:00');
     const battlePassEndDate = new Date('2023-04-11T19:00:00.000+00:00');
     const battlePassDuration = getDateDiff(battlePassEndDate, battlePassStartDate);
-    const lvlsForDay = (battlePassEndLvl - battlePassStartLvl) / battlePassDuration;
 
     // Селекторы
     const displayDaysRemaining = $('#daysRemaining');
@@ -114,6 +121,7 @@
     const inputCurrentLvl = $('#currentLevel');
     const decrementButton = $('#decrementCurrentLevel');
     const incrementButton = $('#incrementCurrentLevel');
+    const endLevelRadio = $('input[name="endLevelRadio"]');
 
     // События
     const loverWatch = new Event("LoverWatch", "02/14/2023", "02/28/2023", "❤️");
@@ -301,6 +309,13 @@
             inputCurrentLvl.val(savedCurrentLevel);
         }
 
+        battlePassEndLvl = localStorage.getItem('endLevel');
+        if (battlePassEndLvl === null) {
+            battlePassEndLvl = 80;
+        }
+        $("input[name=endLevelRadio][value=" + battlePassEndLvl + "]").attr('checked', 'checked');
+        lvlsForDay = (battlePassEndLvl - battlePassStartLvl) / battlePassDuration;
+
         calculateForNow();
         showTime();
 
@@ -316,6 +331,14 @@
     init();
 
     inputCurrentLvl.on('change', function () {
+        calculateForNow();
+    })
+
+    endLevelRadio.on('change', function () {
+        endLevel = parseInt(this.value);
+        localStorage.setItem('endLevel', endLevel);
+        battlePassEndLvl = endLevel;
+        lvlsForDay = (battlePassEndLvl - battlePassStartLvl) / battlePassDuration;
         calculateForNow();
     })
 
