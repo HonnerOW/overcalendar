@@ -12,7 +12,7 @@
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-lg-6 col-sm-12 col-md-10">
-            <h1 class="pt-3">Сезон 3 by <a class="link-dark" href="https://www.youtube.com/c/Хоннер">Хоннер</a>  <a class="btn btn-sm btn-dark" href="https://www.donationalerts.com/r/honner">Поддержать</a></h1>
+            <h1 class="pt-3">Сезон 4 by <a class="link-dark" href="https://www.youtube.com/c/Хоннер">Хоннер</a>  <a class="btn btn-sm btn-dark" href="https://www.donationalerts.com/r/honner">Поддержать</a></h1>
            
             <form>
                 <div class="row">
@@ -110,8 +110,8 @@
 
     // Основыне константы
     const battlePassStartLvl = 1;
-    const battlePassStartDate = new Date('2023-02-07T19:00:00.000+00:00');
-    const battlePassEndDate = new Date('2023-04-11T19:00:00.000+00:00');
+    const battlePassStartDate = new Date('2023-04-11T18:00:00.000+00:00');
+    const battlePassEndDate = new Date('2023-06-14T18:00:00.000+00:00');
     const battlePassDuration = getDateDiff(battlePassEndDate, battlePassStartDate);
 
     // Селекторы
@@ -124,9 +124,11 @@
     const endLevelRadio = $('input[name="endLevelRadio"]');
 
     // События
-    const loverWatch = new Event("LoverWatch", "02/14/2023", "02/28/2023", "❤️");
-    const pachiMarchi = new Event("PachiMarchi", "03/21/2023", "04/04/2023", "🧅");
-    const events = [loverWatch, pachiMarchi];
+    const starwatch = new Event("Starwatch", "05/10/2023", "05/23/2023", "⭐");
+    const bobAndWeave = new Event("BOB & WEAVE", "04/12/2023", "04/25/2023", "🎩");
+    const symmetra = new Event("Симмутра садовод", "05/23/2023", "06/06/2023", "👩‍🌾");
+    const talantis = new Event("Talantis", "04/25/2023", "05/10/2023", "🗺️");
+    const events = [starwatch, bobAndWeave, symmetra, talantis];
 
     // Чат
     const chatMessages = [
@@ -181,7 +183,7 @@
         let expectedLvl = battlePassStartLvl + Math.ceil(lvlsForDay * (battlePassDuration - daysRemaining));
 
         let currentLevel = getCurrentLvl();
-        localStorage.setItem('currentLevel3', currentLevel);
+        localStorage.setItem('currentLevel4', currentLevel);
 
         let lvlDiff = getLvlDiff(currentLevel, expectedLvl)
         changeThumbnail(currentLevel, expectedLvl)
@@ -304,7 +306,7 @@
     }
 
     function init() {
-        savedCurrentLevel = localStorage.getItem('currentLevel3');
+        savedCurrentLevel = localStorage.getItem('currentLevel4');
         if (savedCurrentLevel > 0) {
             inputCurrentLvl.val(savedCurrentLevel);
         }
